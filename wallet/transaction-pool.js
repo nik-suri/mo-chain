@@ -3,6 +3,7 @@ class TransactionPool {
     this.transactions = [];
   }
 
+  // if transaction is in pool, update (reset) it. if not, add it
   updateOrAddTransaction(transaction) {
     let transactionWithId = this.transactions.find(t => t.id === transaction.id);
 
@@ -13,6 +14,7 @@ class TransactionPool {
     }
   }
 
+  // true/false depending on if there is a transaction from address already present in the pool
   existingTransaction(address) {
     return this.transactions.find(t => t.input.address === address);
   }

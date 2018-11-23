@@ -1,7 +1,7 @@
 const Websocket = require('ws');
-
 const P2P_PORT = process.env.P2P_PORT || 5001;
-// test use case: we can run this on a port with set local peers
+
+// testing use case: we can run this on a port with set local peers
 // $ HTTP_PORT= 3002 P2P_PORT=5003 PEERS=ws://localhost:5001,ws://localhost:5002 npm run dev
 const peers = process.env.PEERS ? process.env.PEERS.split(',') : [];
 const MESSAGE_TYPES = {
@@ -10,12 +10,16 @@ const MESSAGE_TYPES = {
 };
 
 class P2pServer {
+
+  // each peer has a copy of the blockchain and the pool of transactions
+  // also has a list of other peers (sockets)
   constructor(blockchain, transactionPool) {
     this.blockchain = blockchain;
     this.transactionPool = transactionPool;
     this.sockets = [];
   }
 
+  // start our server, connect to network, listen for new connections to network
   listen() {
     const server = new Websocket.Server({ port: P2P_PORT });
     server.on('connection', socket => this.connectSocket(socket));
@@ -23,6 +27,7 @@ class P2pServer {
     console.log(`Listening for peer-to-peer connections on: ${P2P_PORT}`);
   }
 
+  // connect to each peer given in peers (our starting network)
   connectToPeers() {
     peers.forEach(peer => {
       // peer is an address such as: ws://localhost:5001
@@ -31,6 +36,9 @@ class P2pServer {
     });
   }
 
+  // connect to a new peer
+  // set up message handling
+  // send new peer a copy of our blockchain
   connectSocket(socket) {
     this.sockets.push(socket);
     console.log('Socket connected.');
@@ -40,6 +48,7 @@ class P2pServer {
     this.sendChain(socket);
   }
 
+  // handle receiving a blockchain or transaction from a peer
   messageHandler(socket) {
     socket.on('message', message => {
       const data = JSON.parse(message);
@@ -54,6 +63,7 @@ class P2pServer {
     });
   }
 
+  // send a copy of our blockchain to a peer
   sendChain(socket) {
     socket.send(JSON.stringify({
       type: MESSAGE_TYPES.chain,
@@ -61,6 +71,7 @@ class P2pServer {
     }));
   }
 
+  // send a transaction to a peer
   sendTransaction(socket, transaction) {
     socket.send(JSON.stringify({
       type: MESSAGE_TYPES.transaction,
@@ -68,10 +79,12 @@ class P2pServer {
     }));
   }
 
+  // make sure network is up to date with the latest chain
   syncChains() {
     this.sockets.forEach(socket => this.sendChain(socket));
   }
 
+  // make sure network is aware of a transaction
   broadcastTransaction(transaction) {
     this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
   }

@@ -1,3 +1,8 @@
+/*
+ * Express JS application to handle get/post requests for our p2p server
+ * Each instance of application has its own wallet and copies of the blockchain and transaction pool
+ * Each instance also becomes part of the p2p network on startup
+ */
 const express = require('express');
 const bodyParser = require('body-parser');
 const Blockchain = require('../blockchain');
