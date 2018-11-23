@@ -7,7 +7,6 @@
     "test": "jest --watchAll",
     "start": "node ./app",
     "dev": "nodemon ./app",
-    "dev-test": "nodemon ./dev-test.js"
   },
   "jest": {
       "testEnvironment": "node"
