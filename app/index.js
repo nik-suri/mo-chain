@@ -40,6 +40,10 @@ app.get('/mine-transactions', (req, res) => {
   res.redirect('/blocks');
 });
 
+app.get('/balance', (req, res) => {
+  res.json({ balance: wallet.calculateBalance(bc) });
+});
+
 app.post('/mine', (req, res) => {
   const block = bc.addBlock(req.body.data);
   console.log(`New block added: ${block.toString()}`);
