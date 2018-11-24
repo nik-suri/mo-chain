@@ -6,10 +6,10 @@
   "scripts": {
     "test": "jest --watchAll",
     "start": "node ./app",
-    "dev": "nodemon ./app",
+    "dev": "nodemon ./app"
   },
   "jest": {
-      "testEnvironment": "node"
+    "testEnvironment": "node"
   },
   "keywords": [],
   "author": "",
