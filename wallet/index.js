@@ -45,6 +45,7 @@ class Wallet {
     return transaction;
   }
 
+  // create a wallet from the blockchain
   static blockchainWallet() {
     const blockchainWallet = new this();
     blockchainWallet.address = 'blockchain-wallet';

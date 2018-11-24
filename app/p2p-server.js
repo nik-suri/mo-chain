@@ -93,7 +93,7 @@ class P2pServer {
     this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
   }
 
-  // tell network to clear their transaction pools
+  // tell network to clear transaction pools
   broadcastClearTransactions() {
     const message = { type: MESSAGE_TYPES.clear_transactions };
     this.sockets.forEach(socket => socket.send(JSON.stringify(message)));
