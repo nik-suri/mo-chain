@@ -24,7 +24,9 @@ class Wallet {
 
   // make a transaction to some recipient
   // effect is to update or add to the current transaction pool
-  createTransaction(recipient, amount, transactionPool) {
+  createTransaction(recipient, amount, blockchain, transactionPool) {
+    // first we recalculate user's balance
+    this.balance = this.calculateBalance(blockchain);
 
     // invalid transaction
     if (amount > this.balance) {
@@ -43,6 +45,49 @@ class Wallet {
     }
 
     return transaction;
+  }
+
+  // calculate balance for a user using the blocks in the blockchain
+  calculateBalance(blockchain) {
+    let balance = this.balance;
+
+    // get all transactions in blockchain
+    let transactions = [];
+    blockchain.chain.forEach(block => block.data.forEach(t => {
+      transactions.push(t);
+    }));
+
+    // start time of most recent transaction made by user
+    let startTime = 0;
+
+    // find all transactions made by the user
+    const walletInputTs = transactions.filter(t => t.input.address === this.publicKey);
+
+    // if user made any outgoing transactions
+    if (walletInputTs.length > 0) {
+
+      // find most recent transaction
+      const recentInputT = walletInputTs.reduce(
+        (prev, current) => prev.input.timestamp > current.input.timestamp ? prev : current
+      );
+
+      // find the output in this transaction which gives the user's new balance
+      balance = recentInputT.outputs.find(output => output.address === this.publicKey).amount;
+      startTime = recentInputT.input.timestamp;
+    }
+
+    // from the point of the most recent transaction, add up any incoming transactions for this user
+    transactions.forEach(t => {
+      if (t.input.timestamp > startTime) {
+        t.outputs.forEach(output => {
+          if (output.address === this.publicKey) {
+            balance += output.amount;
+          }
+        });
+      }
+    });
+
+    return balance;
   }
 
   // create a wallet from the blockchain
